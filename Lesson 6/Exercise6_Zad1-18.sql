@@ -197,6 +197,9 @@ ORDER BY c.CountryName;
 
 GO
 
+--15
+USE Geography
+
 WITH CTE_MostUsedCurrency
      AS (SELECT c.ContinentCode, 
                 c.CurrencyCode, 
@@ -214,3 +217,62 @@ WITH CTE_MostUsedCurrency
      FROM CTE_MostUsedCurrency cmuc
      WHERE cmuc.CurrencyRank = 1
      ORDER BY cmuc.ContinentCode;
+
+GO
+
+--16
+USE Geography
+
+WITH CTE_Countries_NullMountains
+     AS (SELECT COUNT(*) AS CCode
+         FROM dbo.Countries c
+              LEFT JOIN dbo.MountainsCountries mc ON c.CountryCode = mc.CountryCode
+              LEFT JOIN dbo.Mountains m ON mc.MountainId = m.Id
+         GROUP BY c.CountryCode, 
+                  m.MountainRange
+         HAVING m.MountainRange IS NULL)
+     SELECT COUNT(ccnm.CCode) AS CountryCode
+     FROM CTE_Countries_NullMountains ccnm
+     GROUP BY ccnm.CCode;
+
+GO
+
+SELECT Count(*) - count(mc.MountainId) AS CountryCode
+FROM dbo.Countries c
+     LEFT JOIN dbo.MountainsCountries mc ON c.CountryCode = mc.CountryCode
+
+GO
+
+--17
+USE Geography
+
+SELECT TOP 5 c.CountryName, 
+             MAX(p.Elevation) AS [HighestPeakElevation], 
+             MAX(r.Length) AS [LongestRiverLength]
+FROM Countries c
+     FULL JOIN MountainsCountries mc ON mc.CountryCode = c.CountryCode
+     FULL JOIN Peaks p ON p.MountainId = mc.MountainId
+     FULL JOIN CountriesRivers cr ON cr.CountryCode = c.CountryCode
+     FULL JOIN Rivers r ON r.Id = cr.RiverId
+GROUP BY c.CountryName
+ORDER BY [HighestPeakElevation] DESC, 
+         [LongestRiverLength] DESC, 
+         c.CountryName;
+
+GO
+
+--18
+USE Geography
+
+SELECT TOP 5 c.CountryName, 
+             ISNULL(p.PeakName, '(no highest peak)') AS [Highest Peak Name], 
+             ISNULL(p.Elevation, 0) AS [Highest Peak Elevation], 
+             ISNULL(m.MountainRange, '(no mountain)') AS [Mountain]
+FROM Countries c
+     LEFT JOIN MountainsCountries mc ON mc.CountryCode = c.CountryCode
+     LEFT JOIN Mountains m ON m.Id = mc.MountainId
+     LEFT JOIN Peaks p ON p.MountainId = m.Id
+ORDER BY c.CountryName, 
+         p.PeakName;
+
+GO
