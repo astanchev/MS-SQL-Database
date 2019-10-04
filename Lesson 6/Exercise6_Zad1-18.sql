@@ -196,3 +196,21 @@ WHERE c.ContinentCode = 'AF'
 ORDER BY c.CountryName;
 
 GO
+
+WITH CTE_MostUsedCurrency
+     AS (SELECT c.ContinentCode, 
+                c.CurrencyCode, 
+                COUNT(c.CurrencyCode) AS [CurrencyUsage], 
+                DENSE_RANK() OVER(PARTITION BY c.ContinentCode
+                ORDER BY COUNT(c.CurrencyCode) DESC) AS [CurrencyRank]
+         FROM dbo.Countries c
+              JOIN dbo.Continents c2 ON c.ContinentCode = c2.ContinentCode
+         GROUP BY c.ContinentCode, 
+                  c.CurrencyCode
+         HAVING COUNT(c.CurrencyCode) > 1)
+     SELECT cmuc.ContinentCode, 
+            cmuc.CurrencyCode, 
+            cmuc.CurrencyUsage
+     FROM CTE_MostUsedCurrency cmuc
+     WHERE cmuc.CurrencyRank = 1
+     ORDER BY cmuc.ContinentCode;
