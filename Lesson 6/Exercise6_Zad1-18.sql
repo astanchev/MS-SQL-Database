@@ -183,3 +183,16 @@ WHERE c.CountryCode in ('BG', 'RU', 'US')
 GROUP BY c.CountryCode
 
 GO
+
+--14
+USE Geography
+
+SELECT TOP(5) c.CountryName, 
+       r.RiverName
+FROM dbo.Countries c
+     LEFT JOIN dbo.CountriesRivers cr ON c.CountryCode = cr.CountryCode
+     LEFT JOIN dbo.Rivers r ON cr.RiverId = r.Id
+WHERE c.ContinentCode = 'AF'
+ORDER BY c.CountryName;
+
+GO
