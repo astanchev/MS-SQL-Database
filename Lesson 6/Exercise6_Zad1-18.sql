@@ -239,6 +239,11 @@ GO
 SELECT Count(*) - count(mc.MountainId) AS CountryCode
 FROM dbo.Countries c
      LEFT JOIN dbo.MountainsCountries mc ON c.CountryCode = mc.CountryCode
+     
+SELECT COUNT(*) AS CountryCode
+FROM dbo.Countries c
+     LEFT JOIN dbo.MountainsCountries mc ON c.CountryCode = mc.CountryCode
+WHERE mc.MountainId IS NULL;
 
 GO
 
