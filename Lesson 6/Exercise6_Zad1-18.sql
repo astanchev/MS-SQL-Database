@@ -207,7 +207,6 @@ WITH CTE_MostUsedCurrency
                 DENSE_RANK() OVER(PARTITION BY c.ContinentCode
                 ORDER BY COUNT(c.CurrencyCode) DESC) AS [CurrencyRank]
          FROM dbo.Countries c
-              JOIN dbo.Continents c2 ON c.ContinentCode = c2.ContinentCode
          GROUP BY c.ContinentCode, 
                   c.CurrencyCode
          HAVING COUNT(c.CurrencyCode) > 1)
