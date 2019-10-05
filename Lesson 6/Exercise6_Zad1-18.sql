@@ -60,8 +60,7 @@ SELECT TOP (3) e.EmployeeID,
                e.FirstName
 FROM dbo.Employees e
      LEFT JOIN dbo.EmployeesProjects ep ON e.EmployeeID = ep.EmployeeID
-     LEFT JOIN dbo.Projects p ON ep.ProjectID = p.ProjectID
-WHERE p.[Name] IS NULL
+WHERE ep.EmployeeID IS NULL
 ORDER BY e.EmployeeID;
 
 GO
@@ -114,6 +113,17 @@ ORDER BY e.EmployeeID;
 
 GO
 
+SELECT TOP (5) e.EmployeeID, 
+               e.FirstName, 
+               IIF(DATEPART(year, p.StartDate) >= 2005, NULL, p.[Name]) AS ProjectName
+FROM dbo.Employees e
+     JOIN dbo.EmployeesProjects ep ON e.EmployeeID = ep.EmployeeID
+     JOIN dbo.Projects p ON ep.ProjectID = p.ProjectID
+WHERE e.EmployeeID = 24
+ORDER BY e.EmployeeID;
+
+GO
+
 --9
 USE SoftUni
 
@@ -132,8 +142,8 @@ GO
 USE SoftUni
 
 SELECT TOP (50) e.EmployeeID, 
-                CONCAT(e.FirstName, ' ', e.LastName), 
-                CONCAT(m.FirstName, ' ', m.LastName), 
+                CONCAT(e.FirstName, ' ', e.LastName) AS EmployeeName, 
+                CONCAT(m.FirstName, ' ', m.LastName) AS ManagerName, 
                 d.[Name] DepartmentName
 FROM dbo.Employees e
      JOIN dbo.Employees m ON e.ManagerID = m.EmployeeID
@@ -174,6 +184,12 @@ GO
 --13
 USE Geography
 
+SELECT mc.CountryCode, 
+       COUNT(mc.MountainId)
+FROM dbo.MountainsCountries mc 
+WHERE mc.CountryCode IN('BG', 'RU', 'US')
+GROUP BY mc.CountryCode;
+
 SELECT c.CountryCode, 
        COUNT(m.MountainRange)
 FROM dbo.Countries c
@@ -187,8 +203,8 @@ GO
 --14
 USE Geography
 
-SELECT TOP(5) c.CountryName, 
-       r.RiverName
+SELECT TOP (5) c.CountryName, 
+               r.RiverName
 FROM dbo.Countries c
      LEFT JOIN dbo.CountriesRivers cr ON c.CountryCode = cr.CountryCode
      LEFT JOIN dbo.Rivers r ON cr.RiverId = r.Id
@@ -210,6 +226,8 @@ WITH CTE_MostUsedCurrency
          GROUP BY c.ContinentCode, 
                   c.CurrencyCode
          HAVING COUNT(c.CurrencyCode) > 1)
+
+
      SELECT cmuc.ContinentCode, 
             cmuc.CurrencyCode, 
             cmuc.CurrencyUsage
@@ -236,10 +254,12 @@ WITH CTE_Countries_NullMountains
 
 GO
 
-SELECT Count(*) - count(mc.MountainId) AS CountryCode
+SELECT COUNT(*) - COUNT(mc.MountainId) AS CountryCode
 FROM dbo.Countries c
-     LEFT JOIN dbo.MountainsCountries mc ON c.CountryCode = mc.CountryCode
-     
+     LEFT JOIN dbo.MountainsCountries mc ON c.CountryCode = mc.CountryCode;
+
+GO
+
 SELECT COUNT(*) AS CountryCode
 FROM dbo.Countries c
      LEFT JOIN dbo.MountainsCountries mc ON c.CountryCode = mc.CountryCode
@@ -250,7 +270,7 @@ GO
 --17
 USE Geography
 
-SELECT TOP 5 c.CountryName, 
+SELECT TOP (5) c.CountryName, 
              MAX(p.Elevation) AS [HighestPeakElevation], 
              MAX(r.Length) AS [LongestRiverLength]
 FROM Countries c
@@ -277,6 +297,29 @@ FROM Countries c
      LEFT JOIN Mountains m ON m.Id = mc.MountainId
      LEFT JOIN Peaks p ON p.MountainId = m.Id
 ORDER BY c.CountryName, 
+         p.Elevation, 
          p.PeakName;
+
+
+WITH CTE_CountryPeak_Elevation
+     AS (SELECT c.CountryName, 
+                ISNULL(p.PeakName, '(no highest peak)') AS [Highest Peak Name], 
+                ISNULL(p.Elevation, 0) AS [Highest Peak Elevation], 
+                ISNULL(m.MountainRange, '(no mountain)') AS [Mountain], 
+                DENSE_RANK() OVER(PARTITION BY c.CountryName
+                ORDER BY p.Elevation DESC) AS ElevationRank
+         FROM Countries c
+              LEFT JOIN MountainsCountries mc ON mc.CountryCode = c.CountryCode
+              LEFT JOIN Mountains m ON m.Id = mc.MountainId
+              LEFT JOIN Peaks p ON p.MountainId = m.Id)
+     SELECT TOP (5) ccpe.CountryName, 
+                    ccpe.[Highest Peak Name], 
+                    ccpe.[Highest Peak Elevation], 
+                    ccpe.[Mountain]
+     FROM CTE_CountryPeak_Elevation ccpe
+     WHERE ccpe.ElevationRank = 1
+     ORDER BY ccpe.CountryName, 
+              ccpe.[Highest Peak Name] DESC;
+
 
 GO
