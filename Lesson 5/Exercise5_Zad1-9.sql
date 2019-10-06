@@ -75,7 +75,6 @@ VALUES
 
 GO
 
-
 --3
 USE Exercise
 
@@ -104,7 +103,6 @@ CREATE TABLE StudentsExams
  FOREIGN KEY(ExamID) 
  REFERENCES Exams(ExamID)
 );
-
 
 INSERT INTO dbo.Students([Name])
 VALUES('Mila'), ('Toni'), ('Ron');
@@ -270,5 +268,4 @@ SELECT m.MountainRange, p.PeakName, p.Elevation
    WHERE m.MountainRange = 'Rila'
 ORDER BY p.Elevation DESC
 
-
-
+GO
