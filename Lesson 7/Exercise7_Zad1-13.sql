@@ -124,38 +124,45 @@ SELECT dbo.ufn_IsWordComprised('oistmiahf', 'Sofia');
 GO
 
 
---7
+--8
 USE SoftUni
 GO
 
 CREATE PROC usp_DeleteEmployeesFromDepartment(@departmentId INT)
 AS
-    BEGIN
-        DELETE FROM dbo.EmployeesProjects
-        WHERE EmployeeID IN
-        (
-            SELECT e.EmployeeID
-            FROM dbo.Employees e
-            WHERE e.DepartmentID = @departmentId
-        )
+     DELETE FROM dbo.EmployeesProjects
+     WHERE EmployeeID IN
+     (
+         SELECT e.EmployeeID
+         FROM dbo.Employees e
+         WHERE e.DepartmentID = @departmentId
+     );
 
-        UPDATE dbo.Employees
-          SET 
-              ManagerID = NULL
-        WHERE ManagerID IN
-        (
-            SELECT e.EmployeeID
-            FROM dbo.Employees e
-            WHERE e.DepartmentID = @departmentId
-        )
+     UPDATE dbo.Employees
+       SET 
+           ManagerID = NULL
+     WHERE ManagerID IN
+     (
+         SELECT e.EmployeeID
+         FROM dbo.Employees e
+         WHERE e.DepartmentID = @departmentId
+     );
 
-		ALTER TABLE dbo.Departments
-		ALTER COLUMN ManagerID INT
+     ALTER TABLE dbo.Departments ALTER COLUMN ManagerID INT;
 
-		UPDATE dbo.Departments
-		SET ManagerID = NULL
-		WHERE DepartmentID = @departmentId
+     UPDATE dbo.Departments
+       SET 
+           ManagerID = NULL
+     WHERE DepartmentID = @departmentId;
 
+     DELETE FROM dbo.Employees
+     WHERE DepartmentID = @departmentId;
 
+     DELETE FROM dbo.Departments
+     WHERE DepartmentID = @departmentId;
 
-    END;
+     SELECT COUNT(*)
+     FROM dbo.Employees e
+     WHERE DepartmentID = @departmentId;
+    
+GO
