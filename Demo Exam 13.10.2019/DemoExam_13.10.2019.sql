@@ -201,14 +201,13 @@ ORDER BY Commits DESC,
 /*
 SELECT r.Id RepID, 
        r.[Name], 
-       c.Id comID,
-	   c.RepositoryId,
-	   c.ContributorId CommitsContributorId,
-	   rc.ContributorId RepositoriesContributorsId	   
-FROM dbo.Repositories r
-     JOIN dbo.Commits c ON r.Id = c.RepositoryId
+       c.RepositoryId, 
+       c.Id commitID, 
+       c.ContributorId CommitsContributorId, 
+       rc.ContributorId RepositoriesContributorsId
+FROM dbo.Commits c
+     JOIN dbo.Repositories r ON r.Id = c.RepositoryId
      JOIN dbo.RepositoriesContributors rc ON r.Id = rc.RepositoryId
-	 JOIN dbo.Users u ON c.ContributorId = u.Id
 ORDER BY RepID;
 */
 
