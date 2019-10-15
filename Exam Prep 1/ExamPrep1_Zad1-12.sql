@@ -258,7 +258,6 @@ AS
 
          RETURN 'Total price ' + Convert(varchar(50), @totalPrice);
      END;
-
 GO
 
 SELECT dbo.udf_CalculateTickets('Kolyshley','Rancabolang', 33)
