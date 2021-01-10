@@ -196,7 +196,15 @@ ORDER BY [Email Provider],
          Username;
 GO
 
-
+USE Diablo
+--16
+SELECT Username, 
+       IpAddress
+		AS [IpAddress]
+FROM Users
+WHERE IpAddress LIKE '___.1_%._%.___'
+ORDER BY Username;
+GO
 
 USE Diablo
 --17
