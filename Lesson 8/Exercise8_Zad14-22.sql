@@ -368,25 +368,25 @@ WHILE(@itemId <= 299)
 
 DECLARE @counter INT= 501;
 
-WHILE(@itemId <= 539)
+WHILE(@counter <= 539)
     BEGIN
         EXEC usp_BuyItem 
              22, 
-             @itemId, 
+             @counter, 
              'Bali';
         EXEC usp_BuyItem 
              37, 
-             @itemId, 
+             @counter, 
              'Bali';
         EXEC usp_BuyItem 
              52, 
-             @itemId, 
+             @counter, 
              'Bali';
         EXEC usp_BuyItem 
              6, 
-             @itemId, 
+             @counter, 
              'Bali';
-        SET @itemId+=1;
+        SET @counter+=1;
     END;
 
 GO
